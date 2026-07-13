@@ -21,7 +21,7 @@
 
 | 组件 | 判断 | 处理决定 |
 | --- | --- | --- |
-| Neo4j | 命令不可用 | Task 4 前安装 Neo4j Desktop 5.x |
+| Neo4j Desktop 2 | 已安装并创建实例 | 使用本地 Neo4j 2026.05.0 实例 |
 | Docker | 命令不可用 | 当前不安装，避免增加数据库部署路径 |
 | PowerShell 7 | `pwsh` 不可用 | 脚本保持兼容 PowerShell 5.1 |
 
@@ -62,3 +62,13 @@ AI 功能默认关闭。即使未配置 AI 接口，基础图谱查询和四类�
 - Neo4j Desktop 自带或管理数据库运行环境，仍保留系统 Java 版本记录；
 - PowerShell 脚本不得依赖 PowerShell 7 专有语法。
 
+## Neo4j 本机状态
+
+- Desktop 安装目录：`D:\Nro4j\Neo4j Desktop 2`；
+- 实例版本：Neo4j 2026.05.0；
+- HTTP 地址：`http://localhost:7474`；
+- Bolt 地址：`bolt://localhost:7687`；
+- 默认数据库：`neo4j`；
+- 认证信息：仅保存在本地 `.env`，不写入本文档。
+
+实际安装目录名为 `Nro4j`，不是 `Neo4j`。后续脚本不依赖该绝对安装路径，只通过 Bolt 地址连接数据库。
