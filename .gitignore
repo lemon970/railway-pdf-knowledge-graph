@@ -1,0 +1,81 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+secrets/
+
+# Course source documents and large raw files
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.zip
+*.rar
+*.7z
+data/raw/*
+!data/raw/README.md
+
+# OCR temporary files (reviewed text and CSV files remain trackable)
+data/ocr/tmp/
+data/ocr/images/
+data/ocr/**/*.png
+data/ocr/**/*.jpg
+data/ocr/**/*.jpeg
+data/ocr/**/*.tif
+data/ocr/**/*.tiff
+*.ocr.tmp
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Node.js and frontend build output
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+coverage/
+*.tsbuildinfo
+
+# Neo4j and local databases
+neo4j/data/
+neo4j/logs/
+neo4j/import/
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs and runtime files
+*.log
+logs/
+tmp/
+temp/
+*.pid
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local reports and exports
+reports/**/draft-private/
+exports/
+
