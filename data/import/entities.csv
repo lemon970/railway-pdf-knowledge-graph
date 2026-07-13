@@ -1,2 +1,6 @@
 entity_id,name,entity_type,description,pdf_page,printed_page,source_text,reviewer,status
-
+C001,轮对,Component,由车轮和车轴等组成的检修对象,6,29,4.3.1 轮对,组长自检,reviewed
+C002,车轮（含轮盘）,Component,轮对中的车轮部件且本规程将轮盘计入车轮,6,29,4.3.1.1 车轮（含轮盘）,组长自检,reviewed
+D001,车轮直径小于Φ800mm,Defect,车轮直径低于规程规定的整体更换界限,6,29,车轮直径小于Φ800mm时，车轮（含轮盘）整体更换。,组长自检,reviewed
+A001,整体更换车轮（含轮盘）,Action,车轮直径小于Φ800mm时采取的处理措施,6,29,车轮直径小于Φ800mm时，车轮（含轮盘）整体更换。,组长自检,reviewed
+S001,车轮直径下限Φ800mm,Standard,车轮继续使用的直径下限标准,6,29,车轮直径小于Φ800mm时，车轮（含轮盘）整体更换。,组长自检,reviewed

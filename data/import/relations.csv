@@ -1,2 +1,6 @@
 relation_id,source_id,relation_type,target_id,pdf_page,printed_page,source_text,reviewer,status
-
+R001,C002,PART_OF,C001,6,29,4.3.1 轮对；4.3.1.1 车轮（含轮盘）,组长自检,reviewed
+R002,C002,HAS_DEFECT,D001,6,29,车轮直径小于Φ800mm时，车轮（含轮盘）整体更换。,组长自检,reviewed
+R003,D001,REQUIRES_ACTION,A001,6,29,车轮直径小于Φ800mm时，车轮（含轮盘）整体更换。,组长自检,reviewed
+R004,C002,HAS_STANDARD,S001,6,29,车轮直径小于Φ800mm时，车轮（含轮盘）整体更换。,组长自检,reviewed
+R005,C002,REQUIRES_ACTION,A001,6,29,车轮直径小于Φ800mm时，车轮（含轮盘）整体更换。,组长自检,reviewed
