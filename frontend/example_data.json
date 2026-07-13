@@ -1,0 +1,70 @@
+{
+  "status": "first_round_pdf_based",
+  "source": "和谐2C型动车组四级检修规程.pdf",
+  "scope": "4.3 轮对轴箱装置",
+  "note": "已根据 PDF 第6–12页、印刷页码第29–35页整理；提交前需由组员逐条对照原图复核。",
+  "entities": [
+    {
+      "id": "COMP_001",
+      "type": "Component",
+      "name": "轮对",
+      "alias": [],
+      "source_file": "和谐2C型动车组四级检修规程.pdf",
+      "pdf_page": 6,
+      "print_page": 29,
+      "evidence_note": "4.3.1轮对：轮对组成、退卸和超声波探伤要求"
+    },
+    {
+      "id": "DEF_001",
+      "type": "Defect",
+      "name": "车轮",
+      "symptom": "踏面及轮缘不得有裂纹、缺损、剥离、擦伤等缺陷",
+      "source_file": "和谐2C型动车组四级检修规程.pdf",
+      "pdf_page": 7,
+      "print_page": 30,
+      "evidence_note": "4.3.1.1第9条b"
+    },
+    {
+      "id": "ACT_001",
+      "type": "Action",
+      "name": "车轴",
+      "source_file": "和谐2C型动车组四级检修规程.pdf",
+      "pdf_page": 8,
+      "print_page": 31,
+      "evidence_note": "4.3.1.2第1条：车轴轴身表面缺陷处理"
+    },
+    {
+      "id": "STD_001",
+      "type": "Standard",
+      "name": "轴箱轴承",
+      "indicator": "外观缺陷及检修要求",
+      "value_min": null,
+      "value_max": null,
+      "unit": "% / mg/m²",
+      "source_file": "和谐2C型动车组四级检修规程.pdf",
+      "pdf_page": 10,
+      "print_page": 33,
+      "evidence_note": "4.3.2第1-3条"
+    },
+    {
+      "id": "PROC_001",
+      "type": "Procedure",
+      "name": "轮对组装前检测与选配",
+      "sequence": 1,
+      "source_file": "和谐2C型动车组四级检修规程.pdf",
+      "pdf_page": 12,
+      "print_page": 35,
+      "evidence_note": "4.3.1.3第3条h及表4-5"
+    }
+  ],
+  "relationships": [
+    {"id":"REL_001","type":"PART_OF","from":"COMP_002","to":"COMP_001","source_file":"和谐2C型动车组四级检修规程.pdf","pdf_page":6,"print_page":29,"evidence_note":"4.3.1：轮对由车轮、车轴组成"},
+    {"id":"REL_002","type":"PART_OF","from":"COMP_003","to":"COMP_001","source_file":"和谐2C型动车组四级检修规程.pdf","pdf_page":6,"print_page":29,"evidence_note":"4.3.1：轮对组成要求"},
+    {"id":"REL_003","type":"HAS_STANDARD","from":"COMP_002","to":"PROC_001","source_file":"和谐2C型动车组四级检修规程.pdf","pdf_page":6,"print_page":29,"evidence_note":"4.3.1.1：车轮直径小于Φ800 mm整体更换"},
+    {"id":"REL_004","type":"HAS_STANDARD","from":"COMP_001","to":"PROC_001","source_file":"和谐2C型动车组四级检修规程.pdf","pdf_page":8,"print_page":31,"evidence_note":"4.3.1.3：轮对内侧距1353+2/-0 mm"},
+    {"id":"REL_005","type":"REQUIRES_ACTION","from":"COMP_003","to":"PROC_001","source_file":"和谐2C型动车组四级检修规程.pdf","pdf_page":8,"print_page":31,"evidence_note":"4.3.1.2：车轴缺陷按深度手工打磨或车削修复"},
+    {"id":"REL_006","type":"HAS_STANDARD","from":"COMP_004","to":"PROC_001","source_file":"和谐2C型动车组四级检修规程.pdf","pdf_page":10,"print_page":33,"evidence_note":"4.3.2：轴承外观和落尘量要求"},
+    {"id":"REL_007","type":"INCLUDES","from":"PROC_001","to":"COMP_001","source_file":"和谐2C型动车组四级检修规程.pdf","pdf_page":12,"print_page":35,"evidence_note":"表4-5：轮对组装前检测项目"},
+    {"id":"REL_008","type":"NEXT_STEP","from":"PROC_001","to":"COMP_001","source_file":"和谐2C型动车组四级检修规程.pdf","pdf_page":7,"print_page":30,"evidence_note":"4.3.1.1第6条：压装完成48 h后进行检压测试"}
+  ]
+}
