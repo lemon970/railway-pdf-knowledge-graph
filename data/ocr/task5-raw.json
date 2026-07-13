@@ -1,0 +1,24 @@
+{
+  "pdf": "..\\和谐2C型动车组四级检修规程.pdf",
+  "output": "data\\ocr\\task5-raw.txt",
+  "dpi": 200,
+  "language": "ch",
+  "enable_mkldnn": false,
+  "pages": [
+    {
+      "pdf_page": 6,
+      "line_count": 28,
+      "elapsed_seconds": 47.386
+    },
+    {
+      "pdf_page": 7,
+      "line_count": 32,
+      "elapsed_seconds": 42.041
+    },
+    {
+      "pdf_page": 10,
+      "line_count": 31,
+      "elapsed_seconds": 50.869
+    }
+  ]
+}
