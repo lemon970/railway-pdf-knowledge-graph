@@ -1,9 +1,2 @@
 relation_id,source_id,relation_type,target_id,pdf_page,printed_page,source_text,reviewer,status
-R001,C002,PART_OF,C001,6,29,4.3.1 轮对由车轮和车轴等组成,待人工复核,draft
-R002,C003,PART_OF,C001,6,29,4.3.1 轮对组成要求,待人工复核,draft
-R003,C002,HAS_DEFECT,D001,7,30,4.3.1.1第9条b 踏面及轮缘不得有裂纹缺损剥离擦伤等缺陷,待人工复核,draft
-R004,D001,REQUIRES_ACTION,A001,7,30,4.3.1.1第9条 车轮踏面及轮缘缺陷检修要求,待人工复核,draft
-R005,C002,HAS_STANDARD,S001,6,29,4.3.1.1第1条 车轮直径小于Φ800mm时整体更换,待人工复核,draft
-R006,C001,HAS_STANDARD,S002,8,31,4.3.1.3第1条a 轮对内侧距要求,待人工复核,draft
-R007,C003,HAS_STANDARD,S003,8,31,4.3.1.2第1条 车轴轴身表面缺陷处理限度,待人工复核,draft
-R008,P001,NEXT_STEP,P002,7,30,4.3.1.1第6条a 压装完毕48h后进行检压测试,待人工复核,draft
+
