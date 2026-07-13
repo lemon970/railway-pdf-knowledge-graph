@@ -1,9 +1,0 @@
-question_id,question_type,question,target_entity,expected_relation,expected_answer,pdf_page,print_page,evidence_note,status,actual_answer,is_correct,failure_type,latency_ms
-Q01,部件关联,轮对由哪些主要部件组成？,轮对,PART_OF,由车轮和车轴等组成,6,29,4.3.1,draft,,,,
-Q02,部件关联,车轮和车轴组装时需要测量哪些位置？,车轮/车轴,PART_OF,按4.3.1.1第3条和图4-3规定的位置测量,6,29,4.3.1.1第3条及图4-3,draft,,,,
-Q03,缺陷处置,车轴轴身表面缺陷深度不大于1 mm时如何处理？,车轴,REQUIRES_ACTION,允许局部手工打磨去除；大于1 mm时车削加工修复,8,31,4.3.1.2第1条,draft,,,,
-Q04,缺陷处置,车轮踏面出现裂纹、缺损或剥离时有什么要求？,车轮,REQUIRES_ACTION,锻修后踏面及轮缘不得有裂纹、缺损、剥离、擦伤等缺陷,7,30,4.3.1.1第9条b,draft,,,,
-Q05,标准限度,车轮直径小于多少时车轮含轮盘整体更换？,车轮,HAS_STANDARD,车轮直径小于800 mm时整体更换,6,29,4.3.1.1第1条,draft,,,,
-Q06,标准限度,轮对内侧距的管理基准值是多少？,轮对,HAS_STANDARD,任三点测量均须满足1353+2/-0 mm,8,31,4.3.1.3第1条a,draft,,,,
-Q07,流程步骤,轮对组装前需要依据什么表进行检测和选配？,轮对组装前检测与选配,NEXT_STEP,按表4-5进行检测和选配,12,35,4.3.1.3第3条h及表4-5,draft,,,,
-Q08,流程步骤,轮对检压测试应在压装完成多久后进行？,轮对检压测试,NEXT_STEP,压装完毕48 h后进行，最终检压力不小于800 kN，保压不少于30 s,7,30,4.3.1.1第6条a,draft,,,,
