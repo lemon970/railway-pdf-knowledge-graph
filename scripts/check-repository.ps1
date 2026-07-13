@@ -30,7 +30,7 @@ if ($missing.Count -gt 0) {
 
 $trackedForbidden = git -C $root ls-files | Where-Object {
     $_ -match '\.(pdf|docx?|pptx?|pem|key)$' -or
-    $_ -match '(^|/)\.env($|\.)' -or
+    ($_ -match '(^|/)\.env($|\.)' -and $_ -notmatch '(^|/)\.env\.example$') -or
     $_ -match '(^|/)node_modules/'
 }
 
