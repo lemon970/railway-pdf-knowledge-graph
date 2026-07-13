@@ -46,6 +46,19 @@ RELATION_TYPES = {
     "NEXT_STEP",
 }
 
+RELATION_SIGNATURES = {
+    "PART_OF": ({"Component"}, {"Component"}),
+    "HAS_DEFECT": ({"Component"}, {"Defect"}),
+    "REQUIRES_ACTION": ({"Component", "Defect"}, {"Action"}),
+    "HAS_STANDARD": ({"Component", "Action", "Procedure"}, {"Standard"}),
+    "NEXT_STEP": ({"Procedure"}, {"Procedure"}),
+}
+
+SUBMISSION_RANGES = {
+    "member-c": (100, 199),
+    "member-d": (200, 299),
+}
+
 STATUSES = {"draft", "reviewed", "approved"}
 ENTITY_ID_PATTERN = re.compile(r"^[CDASP]\d{3}$")
 RELATION_ID_PATTERN = re.compile(r"^R\d{3}$")
@@ -112,8 +125,8 @@ def _validate_entities(
     path: Path,
     rows: list[tuple[int, dict[str, str]]],
     errors: list[str],
-) -> set[str]:
-    entity_ids: set[str] = set()
+) -> dict[str, str]:
+    entity_types: dict[str, str] = {}
 
     for row_number, row in rows:
         location = _location(path, row_number)
@@ -122,9 +135,9 @@ def _validate_entities(
 
         if not ENTITY_ID_PATTERN.fullmatch(entity_id):
             errors.append(f"{location}: invalid entity_id {entity_id or '<empty>'}")
-        if entity_id in entity_ids:
+        if entity_id in entity_types:
             errors.append(f"{location}: duplicate entity_id {entity_id}")
-        entity_ids.add(entity_id)
+        entity_types[entity_id] = entity_type
 
         expected_prefix = ENTITY_PREFIXES.get(entity_type)
         if expected_prefix is None:
@@ -141,13 +154,13 @@ def _validate_entities(
 
         _validate_common_fields(path, row_number, row, errors)
 
-    return entity_ids
+    return entity_types
 
 
 def _validate_relations(
     path: Path,
     rows: list[tuple[int, dict[str, str]]],
-    entity_ids: set[str],
+    entity_types: dict[str, str],
     errors: list[str],
 ) -> None:
     relation_ids: set[str] = set()
@@ -172,20 +185,87 @@ def _validate_relations(
 
         for field in ("source_id", "target_id"):
             value = row[field]
-            if value not in entity_ids:
+            if value not in entity_types:
                 errors.append(
                     f"{location}: {field} {value or '<empty>'} does not exist"
+                )
+
+        signature = RELATION_SIGNATURES.get(relation_type)
+        if (
+            signature is not None
+            and row["source_id"] in entity_types
+            and row["target_id"] in entity_types
+        ):
+            allowed_sources, allowed_targets = signature
+            source_type = entity_types[row["source_id"]]
+            target_type = entity_types[row["target_id"]]
+            if source_type not in allowed_sources or target_type not in allowed_targets:
+                source_label = "/".join(sorted(allowed_sources))
+                target_label = "/".join(sorted(allowed_targets))
+                errors.append(
+                    f"{location}: {relation_type} requires "
+                    f"{source_label} -> {target_label}; got "
+                    f"{source_type} -> {target_type}"
                 )
 
         _validate_common_fields(path, row_number, row, errors)
 
 
-def validate_files(entities_path: Path, relations_path: Path) -> list[str]:
+def _validate_submission_policy(
+    entities_path: Path,
+    entity_rows: list[tuple[int, dict[str, str]]],
+    relations_path: Path,
+    relation_rows: list[tuple[int, dict[str, str]]],
+    submission_role: str,
+    errors: list[str],
+) -> None:
+    id_min, id_max = SUBMISSION_RANGES[submission_role]
+    if not entity_rows:
+        errors.append(f"{entities_path.name}: at least one entity is required")
+    if not relation_rows:
+        errors.append(f"{relations_path.name}: at least one relation is required")
+
+    for path, rows, id_field in (
+        (entities_path, entity_rows, "entity_id"),
+        (relations_path, relation_rows, "relation_id"),
+    ):
+        for row_number, row in rows:
+            location = _location(path, row_number)
+            identifier = row[id_field]
+            if re.fullmatch(r"[CDASPR]\d{3}", identifier):
+                number = int(identifier[-3:])
+                if not id_min <= number <= id_max:
+                    errors.append(
+                        f"{location}: {id_field} {identifier} is outside "
+                        f"{submission_role} range {id_min}-{id_max}"
+                    )
+            if row["status"] != "draft":
+                errors.append(
+                    f"{location}: status must be draft for "
+                    f"{submission_role} submission"
+                )
+
+
+def validate_files(
+    entities_path: Path,
+    relations_path: Path,
+    *,
+    submission_role: str | None = None,
+) -> list[str]:
     errors: list[str] = []
     entity_rows = _read_rows(entities_path, ENTITY_FIELDS, errors)
     relation_rows = _read_rows(relations_path, RELATION_FIELDS, errors)
-    entity_ids = _validate_entities(entities_path, entity_rows, errors)
-    _validate_relations(relations_path, relation_rows, entity_ids, errors)
+    entity_types = _validate_entities(entities_path, entity_rows, errors)
+    _validate_relations(relations_path, relation_rows, entity_types, errors)
+    if submission_role is not None:
+        _validate_submission_policy(
+            entities_path,
+            entity_rows,
+            relations_path,
+            relation_rows,
+            submission_role,
+            errors,
+        )
     return errors
 
 
@@ -203,12 +283,21 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("data/import/relations.csv"),
         help="Path to relations CSV",
     )
+    parser.add_argument(
+        "--submission-role",
+        choices=tuple(SUBMISSION_RANGES),
+        help="Apply member-specific ID range, nonempty, and draft-status checks",
+    )
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
-    errors = validate_files(args.entities, args.relations)
+    errors = validate_files(
+        args.entities,
+        args.relations,
+        submission_role=args.submission_role,
+    )
     if errors:
         for error in errors:
             print(error)
@@ -221,4 +310,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

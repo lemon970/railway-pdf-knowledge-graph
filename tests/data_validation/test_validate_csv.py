@@ -210,3 +210,67 @@ def test_reports_invalid_csv_header(valid_files: tuple[Path, Path]) -> None:
     errors = validate_files(entities, relations)
 
     assert any("entities.csv:1: invalid header" in error for error in errors)
+
+
+def test_submission_role_accepts_member_c_draft_in_assigned_range(
+    valid_files: tuple[Path, Path],
+) -> None:
+    entities, relations = valid_files
+    entity_rows = list(csv.DictReader(entities.open(encoding="utf-8")))
+    entity_rows[0]["entity_id"] = "C100"
+    entity_rows[1]["entity_id"] = "D100"
+    for row in entity_rows:
+        row["status"] = "draft"
+    write_csv(entities, ENTITY_FIELDS, entity_rows)
+    relation_rows = list(csv.DictReader(relations.open(encoding="utf-8")))
+    relation_rows[0].update(
+        {
+            "relation_id": "R100",
+            "source_id": "C100",
+            "target_id": "D100",
+            "status": "draft",
+        }
+    )
+    write_csv(relations, RELATION_FIELDS, relation_rows)
+
+    errors = validate_files(entities, relations, submission_role="member-c")
+
+    assert errors == []
+
+
+def test_submission_role_rejects_empty_files(tmp_path: Path) -> None:
+    entities = tmp_path / "entities.csv"
+    relations = tmp_path / "relations.csv"
+    write_csv(entities, ENTITY_FIELDS, [])
+    write_csv(relations, RELATION_FIELDS, [])
+
+    errors = validate_files(entities, relations, submission_role="member-c")
+
+    assert any("at least one entity" in error for error in errors)
+    assert any("at least one relation" in error for error in errors)
+
+
+def test_submission_role_rejects_ids_outside_range_and_non_draft_status(
+    valid_files: tuple[Path, Path],
+) -> None:
+    entities, relations = valid_files
+
+    errors = validate_files(entities, relations, submission_role="member-c")
+
+    assert any("entity_id C001 is outside member-c range 100-199" in error for error in errors)
+    assert any("relation_id R001 is outside member-c range 100-199" in error for error in errors)
+    assert any("status must be draft for member-c submission" in error for error in errors)
+
+
+def test_reports_relation_direction_that_conflicts_with_schema(
+    valid_files: tuple[Path, Path],
+) -> None:
+    entities, relations = valid_files
+    rows = list(csv.DictReader(relations.open(encoding="utf-8")))
+    rows[0]["source_id"] = "D001"
+    rows[0]["target_id"] = "C001"
+    write_csv(relations, RELATION_FIELDS, rows)
+
+    errors = validate_files(entities, relations)
+
+    assert any("HAS_DEFECT requires Component -> Defect" in error for error in errors)
