@@ -1,0 +1,38 @@
+name: Validate Member-C CSVs
+
+on:
+  push:
+    branches:
+      - main
+      - DanielLiu05-memberc
+    paths:
+      - 'data/submissions/member-c/**'
+      - 'scripts/validation/**'
+      - '.github/workflows/validate-member-c.yml'
+
+  pull_request:
+    branches:
+      - main
+      - DanielLiu05-memberc
+
+  workflow_dispatch:
+
+jobs:
+  validate-csv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate Member-C CSVs
+        run: |
+          python scripts/validation/validate_csv.py \
+            --entities data/submissions/member-c/entities.csv \
+            --relations data/submissions/member-c/relations.csv \
+            --submission-role member-c
