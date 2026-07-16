@@ -145,6 +145,30 @@ def test_found_answer_rejects_focus_outside_entities() -> None:
         )
 
 
+def test_found_answer_requires_explicit_focus_entity() -> None:
+    with pytest.raises(ValidationError):
+        QuestionAnswer(
+            intent=QueryIntent.DEFECT_ACTION,
+            subject="车轮",
+            found=True,
+            answer="车轮需要的处理措施：整体更换车轮",
+            entities=[
+                EntityReference(
+                    entity_id="D001",
+                    name="车轮直径小于Φ800mm",
+                    entity_type="Defect",
+                )
+            ],
+            evidence=[
+                Evidence(
+                    pdf_page=6,
+                    printed_page=29,
+                    source_text="车轮直径小于Φ800mm时，车轮整体更换。",
+                )
+            ],
+        )
+
+
 def test_not_found_answer_rejects_focus_entity() -> None:
     with pytest.raises(ValidationError):
         QuestionAnswer(

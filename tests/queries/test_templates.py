@@ -95,6 +95,7 @@ def test_answer_contract_keeps_entities_relations_and_evidence() -> None:
         subject="车轮直径小于Φ800mm",
         found=True,
         answer="需要整体更换车轮（含轮盘）。",
+        focus_entity_id="A001",
         entities=[
             EntityReference(
                 entity_id="A001",
@@ -118,6 +119,7 @@ def test_answer_contract_keeps_entities_relations_and_evidence() -> None:
         ],
     )
 
+    assert answer.focus_entity_id == "A001"
     assert answer.entities[0].entity_id == "A001"
     assert answer.relations[0].relation_type == "REQUIRES_ACTION"
     assert answer.evidence[0].pdf_page == 6

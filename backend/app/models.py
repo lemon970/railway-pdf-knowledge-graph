@@ -112,8 +112,6 @@ class QuestionAnswer(BaseModel):
     def require_evidence_for_found_answer(self) -> QuestionAnswer:
         if self.found and not self.evidence:
             raise ValueError("A found answer must include source evidence")
-        if self.found and self.focus_entity_id is None and self.entities:
-            self.focus_entity_id = self.entities[0].entity_id
         entity_ids = {entity.entity_id for entity in self.entities}
         if self.found and self.focus_entity_id not in entity_ids:
             raise ValueError("A found answer must focus on a returned entity")
