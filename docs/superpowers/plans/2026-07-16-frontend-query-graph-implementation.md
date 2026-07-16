@@ -11,6 +11,7 @@
 - 开发环境由 Vite 代理 `/api` 和 `/health`；演示环境由 FastAPI 返回 `index.html` 并挂载 `/assets`。
 - Cytoscape.js 直接在 React `useEffect` 中管理，使用以 `center_id` 为根的确定性 `breadthfirst` 布局。
 - 图谱画布配合同步实体/关系列表，保证键盘用户不依赖画布内部导航。
+- 根文档和所有默认可见界面使用简体中文；内部代码、API 枚举保持英文并通过集中映射显示中文。
 
 ## 成熟工具复用原则
 
@@ -20,13 +21,16 @@
 | --- | --- | --- |
 | 应用与构建 | React、Vite、`@vitejs/plugin-react` | 模块打包、热更新和构建管线 |
 | API 运行时校验 | Zod | 嵌套响应字段的手写类型判断 |
-| 组件交互测试 | Vitest、React Testing Library、`@testing-library/user-event` | DOM 查询、键盘和输入事件模拟 |
+| 组件交互测试 | Vitest、React Testing Library、`jest-dom`、`@testing-library/user-event` | DOM 查询、可访问断言、键盘和输入事件模拟 |
 | 图谱布局与交互 | Cytoscape.js | 节点布局、视口适配、边方向和选择事件 |
 | 图标 | `lucide-react` | 手绘 SVG 和字符图标 |
-| 浏览器验收 | Playwright | 多视口、控制台、网络和截图自动化 |
+| 代码检查 | ESLint、`eslint-plugin-react-hooks` | React Hooks 生命周期规则和常见静态问题 |
+| 浏览器验收 | Playwright、`@axe-core/playwright` | 多视口、控制台、网络、截图和自动可访问性扫描 |
 | 后端静态响应 | FastAPI `FileResponse`、Starlette `StaticFiles` | 手写文件读取、MIME 类型和路径解析 |
 
 对于只需少量代码的部分保留平台原生能力：API 请求使用浏览器 `fetch`，页面状态使用 React state，布局使用项目 CSS。当前没有缓存、分页或复杂跨页状态，不引入 Axios、TanStack Query、Redux 或完整 UI 组件库。
+
+中文文案和枚举映射集中定义并保持类型完整。用户输入、实体名称、规程原文和后端答案按原文展示；`null`、`undefined`、内部错误码、校验细节和堆栈不得进入可见界面。当前只有一种语言，不引入 `react-i18next`；只有未来确认运行时语言切换后再增加国际化框架。
 
 ## Task 11.0：增加图谱焦点实体契约
 
@@ -59,11 +63,12 @@
 - [ ] `npm ci`、类型检查、测试和构建均有明确脚本；
 - [ ] 页面包含唯一 `h1`、数据范围和 Neo4j 连接状态；
 - [ ] `/health` 在线、离线和重新检测状态都有组件测试。
+- [ ] 根文档使用 `lang="zh-CN"`，页面标题、`h1`、状态和重新检测按钮默认显示中文，不受浏览器 locale 影响。
 
 **验证：**
 
 - [ ] 先写 `SystemStatus` 失败测试，再实现组件；
-- [ ] `npm test -- --run`、`npm run typecheck`、`npm run build` 通过；
+- [ ] `npm test -- --run`、`npm run lint`、`npm run typecheck`、`npm run build` 通过；
 - [ ] `dist/` 与 `node_modules/` 保持忽略。
 
 **依赖：** Task 11.0。
@@ -81,6 +86,7 @@
 - [ ] 四个示例问题可填入并提交，加载期间禁止重复请求；
 - [ ] 有答案显示结论、实体、证据原文、PDF 页码和印刷页码；
 - [ ] 空输入、无答案和三类错误状态使用固定、可重试的界面语义。
+- [ ] 标签、占位符、四个示例、提交/加载/重试、处理方式、实体类型、证据字段和全部错误状态默认显示中文。
 
 **验证：**
 
@@ -132,6 +138,7 @@
 - [ ] 实体类型和关系类型都有文字，不只依赖颜色；
 - [ ] Tab、Enter 和 Space 可通过语义列表完成节点选择；
 - [ ] 长中文名称、证据和关系标签可以换行且不改变工具栏尺寸。
+- [ ] 图谱工具栏 tooltip 与 `aria-label`、实体和关系列表、节点详情、空图及图谱错误状态全部使用中文。
 
 **验证：**
 
@@ -180,6 +187,8 @@
 **验证：**
 
 - [ ] Playwright 验证 320、768、1024 和 1440 像素宽度；
+- [ ] 在浏览器 locale 为 `en-US` 时仍通过中文可访问名称完成查询、重试和节点选择；
+- [ ] `@axe-core/playwright` 在桌面和手机关键状态无 serious 或 critical 违规；
 - [ ] 保存桌面和手机验收截图到忽略的临时目录，不提交测试噪声；
 - [ ] 最终执行前端测试、类型检查、构建、Python 全量测试和仓库检查。
 
