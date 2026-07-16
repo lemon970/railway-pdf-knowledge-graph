@@ -54,6 +54,9 @@ it('显示成功答案、中文处理方式、中文实体类型和双页码证�
   render(<App />)
   await screen.findByText('数据库已连接')
 
+  expect(screen.getByRole('textbox')).toBeEnabled()
+  expect(screen.getByRole('button', { name: '查询规程' })).toBeEnabled()
+
   await user.type(screen.getByRole('textbox'), '车轮直径小于Φ800mm时如何处理？')
   await user.click(screen.getByRole('button', { name: '查询规程' }))
 

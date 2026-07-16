@@ -59,6 +59,7 @@ describe('SystemStatus', () => {
 
   it('网络错误后可点击重新检测', async () => {
     const user = userEvent.setup()
+    const onConnectionChange = vi.fn()
     vi.mocked(fetch)
       .mockRejectedValueOnce(new TypeError('network error'))
       .mockResolvedValueOnce(
@@ -68,12 +69,17 @@ describe('SystemStatus', () => {
         }),
       )
 
-    render(<SystemStatus />)
+    render(<SystemStatus onConnectionChange={onConnectionChange} />)
     expect(await screen.findByText('数据库暂不可用')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '重新检测' }))
 
     expect(await screen.findByText('数据库已连接')).toBeInTheDocument()
+    expect(onConnectionChange.mock.calls.map(([state]) => state)).toEqual([
+      'unavailable',
+      'checking',
+      'connected',
+    ])
     expect(fetch).toHaveBeenCalledTimes(2)
   })
 

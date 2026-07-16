@@ -42,6 +42,11 @@ export function SystemStatus({ onConnectionChange }: SystemStatusProps) {
   const [connection, setConnection] = useState<ConnectionState>('checking')
   const activeControllerRef = useRef<AbortController | null>(null)
 
+  const publishConnection = useCallback((nextConnection: ConnectionState) => {
+    setConnection(nextConnection)
+    onConnectionChange?.(nextConnection)
+  }, [onConnectionChange])
+
   const runHealthCheck = useCallback(async () => {
     activeControllerRef.current?.abort()
 
@@ -73,8 +78,8 @@ export function SystemStatus({ onConnectionChange }: SystemStatusProps) {
     }
 
     activeControllerRef.current = null
-    setConnection(result)
-  }, [])
+    publishConnection(result)
+  }, [publishConnection])
 
   useEffect(() => {
     void runHealthCheck()
@@ -84,12 +89,8 @@ export function SystemStatus({ onConnectionChange }: SystemStatusProps) {
     }
   }, [runHealthCheck])
 
-  useEffect(() => {
-    onConnectionChange?.(connection)
-  }, [connection, onConnectionChange])
-
   const handleRetry = () => {
-    setConnection('checking')
+    publishConnection('checking')
     void runHealthCheck()
   }
 

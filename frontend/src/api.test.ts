@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { askNaturalQuestion } from './api'
+import {
+  askNaturalQuestion,
+  entityTypeLabels,
+  processingMethodLabels,
+} from './api'
 
 const validAnswer = {
   intent: 'defect_action',
@@ -72,5 +76,31 @@ describe('askNaturalQuestion', () => {
     await expect(askNaturalQuestion('测试问题', undefined, fetcher)).rejects.toMatchObject({
       message: '查询服务返回的数据格式无效',
     })
+  })
+
+  it('拒绝非法关系类型', async () => {
+    const fetcher = vi.fn().mockResolvedValue(jsonResponse({
+      ...validAnswer,
+      relations: [{ ...validAnswer.relations[0], relation_type: 'RELATED_TO' }],
+    }))
+
+    await expect(askNaturalQuestion('测试问题', undefined, fetcher)).rejects.toMatchObject({
+      message: '查询服务返回的数据格式无效',
+    })
+  })
+})
+
+it('集中提供全部处理方式和实体类型中文映射', () => {
+  expect(processingMethodLabels).toEqual({
+    structured: '结构化查询',
+    rule: '规则识别',
+    ai: 'AI 辅助',
+  })
+  expect(entityTypeLabels).toEqual({
+    Component: '部件',
+    Defect: '缺陷',
+    Action: '处理措施',
+    Standard: '限度标准',
+    Procedure: '工序',
   })
 })
