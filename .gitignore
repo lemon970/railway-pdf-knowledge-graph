@@ -80,3 +80,6 @@ desktop.ini
 reports/**/draft-private/
 exports/
 
+# Local design brainstorming sessions
+.superpowers/
+
