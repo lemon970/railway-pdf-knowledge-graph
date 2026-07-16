@@ -26,9 +26,13 @@
 | 图谱 | Cytoscape.js | 使用成熟图布局，不手写图算法 |
 | 单元测试 | Vitest + React Testing Library | 验证组件状态与交互 |
 | 浏览器测试 | Playwright | 验证真实 API、响应式布局、键盘和控制台 |
-| 演示部署 | FastAPI 静态文件 | 构建产物与 API 同源，只启动一个服务 |
+| 演示部署 | FastAPI `GET /` + `/assets` | 构建产物与 API 同源，只启动一个服务；不把整个静态目录以根路径 catch-all 挂载 |
 
 开发时 Vite 将 `/api` 和 `/health` 代理到 `127.0.0.1:8000`。演示前执行前端构建，输出目录由 FastAPI 挂载。Cytoscape.js 随构建产物本地提供，不依赖演示现场网络。
+
+初始依赖基线为 Vite 8.1.5、React 19.2.7、Cytoscape.js 3.34.0，具体版本固定在 `package.json` 和提交的锁文件中。当前本机 Node 24.11.1 满足 Vite 的 `^20.19.0 || >=22.12.0` 要求。图谱直接通过 Cytoscape.js API 在 React `useEffect` 中创建和销毁，不使用维护停滞的 `react-cytoscapejs` 封装。
+
+FastAPI 使用 `FileResponse` 单独返回 Vite 生成的 `index.html`，并把构建目录中的资源挂载到 `/assets`。第一版没有客户端路由，因此不增加 SPA catch-all；`/docs`、`/health` 和 `/api/*` 始终由 FastAPI 自身路由处理。
 
 ## 3. 页面结构与视觉方向
 
@@ -42,7 +46,7 @@
 
 桌面布局：
 
-1. 顶部显示项目名称、数据概况和 Neo4j 状态；
+1. 顶部显示项目名称、数据范围和 Neo4j 状态；第一版不展示未经接口提供的实体/关系数量；
 2. 查询区横向排列输入框和查询按钮，下方放四类示例问题；
 3. 左栏显示结论、处理方式、相关实体和规程证据；
 4. 右栏显示图谱、节点详情和重置视图；
@@ -65,13 +69,15 @@
 
 数据请求与展示分离。展示组件不直接调用 `fetch`，Cytoscape 实例只由 `GraphExplorer` 管理并在组件卸载时销毁。
 
+前端依赖的 `QuestionAnswer` 契约需要增加 `focus_entity_id: string | null`。有答案时由后端明确给出最适合作为邻域中心的实体 ID；无答案时为 `null`。该字段必须对应 `entities` 中存在的实体，避免前端根据返回顺序猜测业务含义。
+
 ## 5. 数据流
 
 1. 页面启动后请求 `GET /health`；
 2. 用户输入问题或选择一个示例问题；
 3. 页面请求 `POST /api/natural-questions`；
 4. 成功后先展示答案、处理方式、实体和证据；
-5. 从答案实体中选择第一个可用实体 ID，请求 `GET /api/graph/{entity_id}`；
+5. 使用答案中的显式 `focus_entity_id` 请求 `GET /api/graph/{entity_id}`；不依赖 `entities` 列表顺序；
 6. 图谱响应转换为 Cytoscape 节点和有向边；
 7. 用户选择节点后，在图谱下方显示该节点详情；
 8. 新问题提交时清除旧错误和旧图谱选择，但保持布局尺寸稳定。
@@ -98,9 +104,14 @@ API 错误按 `error.code` 映射为界面文案。任何来自接口的文本�
 - 节点颜色按 `Component`、`Defect`、`Action`、`Standard`、`Procedure` 区分，同时显示中文或英文类型标签，不能只依赖颜色；
 - 边显示关系方向和关系类型；
 - 节点支持鼠标选择和键盘聚焦；
+- 图谱画布作为补充可视化，不承担完整的 Tab 键语义导航；图谱下方同步提供实体和关系的语义列表，使用真实按钮支持键盘选择；
 - 工具栏提供适应视图和重置选择的图标按钮，并提供可访问名称；
+- 使用确定性、有根的 `breadthfirst` 布局，根节点为 `center_id`，保证答辩截图和重复查询的布局稳定；
+- 中文节点和关系标签启用可换行策略（等价于 Cytoscape 的 `text-overflow-wrap: anywhere`），长名称不得截断到无法辨认；
 - 空图、单节点、5 个节点和 20 个节点使用一致容器尺寸；
 - 图谱数据只来自 `/api/graph/{entity_id}`，不在浏览器执行数据库查询。
+
+React Strict Mode 下 `useEffect` 可能执行额外的 setup/cleanup 周期。每次创建 Cytoscape 实例都必须注册对称的事件监听器，并在 cleanup 中调用 `cy.destroy()`，不得保留旧实例或重复监听器。
 
 ## 8. 响应式与可访问性
 
@@ -133,6 +144,8 @@ Playwright 浏览器验收覆盖：
 - 控制台无错误和警告，API 请求地址与载荷正确；
 - 页面和图谱依赖在断网环境仍可加载。
 
+开发环境允许 Playwright 同时启动 Vite 和 FastAPI 两个 web server，并启用 `reuseExistingServer` 以复用已启动服务；生产/演示验收必须额外验证构建后的单 FastAPI 服务：`GET /` 返回前端、`/assets/*` 可加载，且 `/docs`、`/health` 和 `/api/*` 不被前端静态资源拦截。
+
 构建验收：
 
 - `npm test` 通过；
@@ -141,6 +154,16 @@ Playwright 浏览器验收覆盖：
 - FastAPI 启动后根路径能返回前端，`/docs` 和 API 路由保持可用；
 - `.env`、密钥、`node_modules` 和临时设计文件不进入提交。
 
-## 10. 后续提升
+## 10. 调研依据
+
+- [Vite Guide](https://vite.dev/guide/)：当前 Vite 工作流、Node 版本要求和构建方式；
+- [Vite Backend Integration](https://vite.dev/guide/backend-integration)：后端托管构建产物和资源路径的约定；
+- [FastAPI Static Files](https://fastapi.tiangolo.com/tutorial/static-files/) 与 [Starlette StaticFiles](https://www.starlette.io/staticfiles/)：静态资源挂载边界；
+- [React `useEffect`](https://react.dev/reference/react/useEffect)：Strict Mode 下 setup/cleanup 对称性；
+- [Cytoscape.js](https://js.cytoscape.org/)：`breadthfirst` 布局、文本换行和实例销毁 API；
+- [Playwright webServer](https://playwright.dev/docs/test-webserver)：多服务开发测试与复用已启动服务；
+- [Cytoscape.js issue #3091](https://github.com/cytoscape/cytoscape.js/issues/3091)：画布 Tab 键可访问性限制，采用同步语义列表补足。
+
+## 11. 后续提升
 
 当前版本先保证信息结构、证据清晰度和交互完整性。视觉提升作为独立后续任务处理，可调整字体、细节间距、图谱样式和答辩投屏效果，但不得改变已固定的 API 契约、状态语义和响应式顺序。
