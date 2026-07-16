@@ -86,7 +86,11 @@ export default function App() {
           {error && (
             <div className="query-error" role="alert" aria-live="assertive">
               <p>{error}</p>
-              <button type="button" onClick={() => runQuestion(lastQuestionRef.current)}>
+              <button
+                type="button"
+                disabled={connection !== 'connected' || isLoading}
+                onClick={() => runQuestion(lastQuestionRef.current)}
+              >
                 <RefreshCw size={16} aria-hidden="true" />重试查询
               </button>
             </div>

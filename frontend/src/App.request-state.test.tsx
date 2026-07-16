@@ -10,6 +10,7 @@ vi.mock('./components/SystemStatus', () => ({
     onConnectionChange?: (connection: 'checking' | 'connected' | 'unavailable') => void
   }) => (
     <div>
+      <button type="button" onClick={() => onConnectionChange?.('checking')}>模拟检测</button>
       <button type="button" onClick={() => onConnectionChange?.('connected')}>模拟连接</button>
       <button type="button" onClick={() => onConnectionChange?.('unavailable')}>模拟离线</button>
     </div>
@@ -121,4 +122,19 @@ it('已取消的旧请求结果不会覆盖后续查询结果', async () => {
   resolveOldRequest?.(jsonResponse(firstAnswer))
   await waitFor(() => expect(screen.queryByText('旧查询答案')).not.toBeInTheDocument())
   expect(screen.getByText('新查询答案')).toBeInTheDocument()
+})
+
+it('健康状态非连接时禁用错误重试', async () => {
+  vi.mocked(fetch).mockRejectedValue(new TypeError('network error'))
+  render(<App />)
+
+  const { user } = await connectAndSubmit('需要重试的问题')
+  const retry = await screen.findByRole('button', { name: '重试查询' })
+  expect(retry).toBeEnabled()
+
+  await user.click(screen.getByRole('button', { name: '模拟检测' }))
+  expect(retry).toBeDisabled()
+  await user.click(screen.getByRole('button', { name: '模拟离线' }))
+  expect(retry).toBeDisabled()
+  expect(fetch).toHaveBeenCalledTimes(1)
 })

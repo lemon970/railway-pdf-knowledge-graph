@@ -7,6 +7,7 @@ const exampleQuestions = [
   '车轮轮缘厚度的限度标准是什么？',
   '更换闸瓦需要经过哪些工序？',
 ]
+const maximumQuestionLength = 500
 
 interface QuestionFormProps {
   disabled: boolean
@@ -26,6 +27,10 @@ export function QuestionForm({ disabled, isLoading, onSubmit }: QuestionFormProp
       setValidationError('请输入要查询的问题')
       return
     }
+    if (trimmedQuestion.length > maximumQuestionLength) {
+      setValidationError('问题不能超过 500 字')
+      return
+    }
     setValidationError('')
     onSubmit(trimmedQuestion)
   }
@@ -43,6 +48,7 @@ export function QuestionForm({ disabled, isLoading, onSubmit }: QuestionFormProp
           }}
           placeholder="例如：车轮直径小于Φ800mm时如何处理？"
           rows={3}
+          maxLength={maximumQuestionLength}
           disabled={isDisabled}
           aria-describedby={validationError ? 'question-validation' : undefined}
           aria-invalid={Boolean(validationError)}
@@ -52,7 +58,11 @@ export function QuestionForm({ disabled, isLoading, onSubmit }: QuestionFormProp
           {isLoading ? '查询中' : '查询规程'}
         </button>
       </div>
-      {validationError && <p id="question-validation" className="form-error">{validationError}</p>}
+      {validationError && (
+        <p id="question-validation" className="form-error" role="alert" aria-live="assertive">
+          {validationError}
+        </p>
+      )}
       <div className="question-examples" aria-label="示例问题">
         <span>示例问题</span>
         <div>
