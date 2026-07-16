@@ -79,6 +79,11 @@ class GraphResponse(BaseModel):
     edges: list[GraphEdge]
 
 
+class HealthResponse(BaseModel):
+    status: Literal["ok", "degraded"]
+    database: Literal["connected", "unavailable"]
+
+
 class QuestionAnswer(BaseModel):
     intent: QueryIntent
     subject: str

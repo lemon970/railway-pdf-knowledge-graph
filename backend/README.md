@@ -30,3 +30,30 @@
 ```
 
 其中 Neo4j 集成测试要求本地数据库已经启动且 `.env` 配置有效。
+
+## 启动 API
+
+从仓库根目录执行：
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+```
+
+启动后可以访问 `http://127.0.0.1:8000/docs` 调试以下接口：
+
+| 方法和路径 | 用途 |
+| --- | --- |
+| `GET /health` | 检查应用和 Neo4j 连接状态 |
+| `POST /api/questions` | 按受控意图和主题查询答案及证据 |
+| `GET /api/graph/{entity_id}` | 查询一个实体的直接邻域节点和关系 |
+
+结构化问答请求示例：
+
+```json
+{
+  "intent": "defect_action",
+  "subject": "车轮直径小于Φ800mm"
+}
+```
+
+数据库离线时返回 HTTP `503` 和固定错误码 `DATABASE_UNAVAILABLE`，不会返回连接串、账号、密码或驱动堆栈。实体不存在时图谱接口返回 HTTP `404` 和错误码 `ENTITY_NOT_FOUND`。
