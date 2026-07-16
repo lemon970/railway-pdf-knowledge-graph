@@ -381,6 +381,93 @@ h2 {
   overflow-wrap: anywhere;
 }
 
+.result-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 11fr) minmax(22rem, 9fr);
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.result-layout > .answer-panel,
+.result-layout > .graph-panel {
+  min-width: 0;
+}
+
+.graph-panel {
+  min-height: 30rem;
+  margin-top: 1rem;
+  border: 1px solid #cfd7d1;
+  border-radius: 6px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.graph-panel__header {
+  min-height: 4.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #dce2dd;
+}
+
+.graph-panel__header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.graph-panel__header > span {
+  color: #5a675e;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.graph-explorer,
+.graph-state {
+  min-height: 25.5rem;
+  aspect-ratio: 4 / 3;
+}
+
+.graph-state {
+  display: grid;
+  place-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  color: #5a675e;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.graph-state p {
+  margin: 0;
+}
+
+.graph-state--error {
+  color: #742f22;
+  background: #fff8f5;
+}
+
+.graph-state button {
+  min-height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #c3cec6;
+  border-radius: 5px;
+  color: #33433a;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.graph-state button:focus-visible {
+  outline: 3px solid #9ec2aa;
+  outline-offset: 2px;
+}
+
 .answer-panel__header {
   display: flex;
   align-items: flex-start;
@@ -560,6 +647,16 @@ h2 {
 
   .method-label {
     white-space: normal;
+  }
+
+  .result-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .graph-panel,
+  .graph-explorer,
+  .graph-state {
+    min-height: 22rem;
   }
 
   .evidence-list p {

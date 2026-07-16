@@ -32,6 +32,32 @@ const evidenceSchema = z.strictObject({
   source_text: z.string().min(1),
 })
 
+const graphNodeSchema = z.strictObject({
+  entity_id: z.string().min(1),
+  name: z.string().min(1),
+  entity_type: entityTypeSchema,
+  description: z.string(),
+  pdf_page: z.number().int().positive(),
+  printed_page: z.number().int().positive(),
+  source_text: z.string().min(1),
+})
+
+const graphEdgeSchema = z.strictObject({
+  relation_id: z.string().min(1),
+  relation_type: relationTypeSchema,
+  source_id: z.string().min(1),
+  target_id: z.string().min(1),
+  pdf_page: z.number().int().positive(),
+  printed_page: z.number().int().positive(),
+  source_text: z.string().min(1),
+})
+
+export const graphResponseSchema = z.strictObject({
+  center_id: z.string().min(1),
+  nodes: z.array(graphNodeSchema),
+  edges: z.array(graphEdgeSchema),
+})
+
 export const questionAnswerSchema = z.strictObject({
   intent: intentSchema,
   subject: z.string(),
@@ -71,6 +97,8 @@ const errorResponseSchema = z.strictObject({
 export type QuestionAnswer = z.infer<typeof questionAnswerSchema>
 export type ProcessingMethod = z.infer<typeof processingMethodSchema>
 export type EntityType = z.infer<typeof entityTypeSchema>
+export type RelationType = z.infer<typeof relationTypeSchema>
+export type GraphResponse = z.infer<typeof graphResponseSchema>
 
 export const processingMethodLabels = {
   structured: '结构化查询',
@@ -86,12 +114,21 @@ export const entityTypeLabels = {
   Procedure: '工序',
 } satisfies Record<EntityType, string>
 
+export const relationTypeLabels = {
+  PART_OF: '组成关系',
+  HAS_DEFECT: '存在缺陷',
+  REQUIRES_ACTION: '需要处理',
+  HAS_STANDARD: '符合标准',
+  NEXT_STEP: '下一工序',
+} satisfies Record<RelationType, string>
+
 const knownErrorMessages: Record<string, string> = {
   UNKNOWN_INTENT: '暂不支持这类问题',
   DATABASE_UNAVAILABLE: '图数据库暂时不可用',
 }
 
 export class QuestionApiError extends Error {}
+export class GraphApiError extends Error {}
 
 function isAbortError(error: unknown) {
   return error instanceof DOMException && error.name === 'AbortError'
@@ -137,4 +174,47 @@ export async function askNaturalQuestion(
     throw new QuestionApiError('查询服务返回的数据格式无效')
   }
   return parsedAnswer.data
+}
+
+export async function getGraphNeighborhood(
+  entityId: string,
+  signal?: AbortSignal,
+  fetcher: typeof fetch = fetch,
+): Promise<GraphResponse> {
+  let response: Response
+  try {
+    response = await fetcher(`/api/graph/${encodeURIComponent(entityId)}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal,
+    })
+  } catch (error) {
+    if (isAbortError(error)) throw error
+    throw new GraphApiError('无法连接图谱服务')
+  }
+
+  let body: unknown
+  try {
+    body = await response.json()
+  } catch {
+    throw new GraphApiError('图谱服务返回的数据格式无效')
+  }
+
+  if (!response.ok) {
+    const parsedError = errorResponseSchema.safeParse(body)
+    if (!parsedError.success) {
+      throw new GraphApiError('图谱服务返回的数据格式无效')
+    }
+    const message = {
+      ENTITY_NOT_FOUND: '未找到对应实体',
+      DATABASE_UNAVAILABLE: '图数据库暂时不可用',
+    }[parsedError.data.error.code] ?? '图谱加载失败，请稍后重试'
+    throw new GraphApiError(message)
+  }
+
+  const parsedGraph = graphResponseSchema.safeParse(body)
+  if (!parsedGraph.success) {
+    throw new GraphApiError('图谱服务返回的数据格式无效')
+  }
+  return parsedGraph.data
 }

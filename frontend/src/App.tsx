@@ -3,6 +3,7 @@ import { BookOpenText, RefreshCw } from 'lucide-react'
 import { askNaturalQuestion, type QuestionAnswer } from './api'
 import { AnswerPanel } from './components/AnswerPanel'
 import { QuestionForm } from './components/QuestionForm'
+import { GraphPanel } from './components/GraphPanel'
 import { SystemStatus } from './components/SystemStatus'
 
 export default function App() {
@@ -95,7 +96,14 @@ export default function App() {
               </button>
             </div>
           )}
-          {answer && <AnswerPanel result={answer} />}
+          {answer && (
+            <div className={answer.found && answer.focus_entity_id ? 'result-layout' : undefined}>
+              <AnswerPanel result={answer} />
+              {answer.found && answer.focus_entity_id && (
+                <GraphPanel key={answer.focus_entity_id} entityId={answer.focus_entity_id} />
+              )}
+            </div>
+          )}
         </section>
 
         <section className="status-section" aria-labelledby="status-heading">
