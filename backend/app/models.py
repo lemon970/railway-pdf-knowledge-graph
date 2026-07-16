@@ -47,6 +47,38 @@ class RelationReference(BaseModel):
     target_id: str = Field(min_length=1)
 
 
+class GraphNode(BaseModel):
+    entity_id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    entity_type: Literal["Component", "Defect", "Action", "Standard", "Procedure"]
+    description: str
+    pdf_page: int = Field(gt=0)
+    printed_page: int = Field(gt=0)
+    source_text: str = Field(min_length=1)
+
+
+class GraphEdge(BaseModel):
+    relation_id: str = Field(min_length=1)
+    relation_type: Literal[
+        "PART_OF",
+        "HAS_DEFECT",
+        "REQUIRES_ACTION",
+        "HAS_STANDARD",
+        "NEXT_STEP",
+    ]
+    source_id: str = Field(min_length=1)
+    target_id: str = Field(min_length=1)
+    pdf_page: int = Field(gt=0)
+    printed_page: int = Field(gt=0)
+    source_text: str = Field(min_length=1)
+
+
+class GraphResponse(BaseModel):
+    center_id: str = Field(min_length=1)
+    nodes: list[GraphNode]
+    edges: list[GraphEdge]
+
+
 class QuestionAnswer(BaseModel):
     intent: QueryIntent
     subject: str
