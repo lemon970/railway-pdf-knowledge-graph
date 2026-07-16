@@ -335,9 +335,17 @@ h2 {
 }
 
 .question-examples button:hover:not(:disabled),
-.query-error button:hover {
+.query-error button:hover:not(:disabled) {
   border-color: #5d856b;
   background: #edf4ef;
+}
+
+.query-error button:disabled {
+  border-color: #d3d9d5;
+  color: #747d77;
+  background: #f1f3f1;
+  cursor: not-allowed;
+  opacity: 0.75;
 }
 
 .query-error {
