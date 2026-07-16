@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class QueryIntent(str, Enum):
@@ -14,12 +14,25 @@ class QueryIntent(str, Enum):
 
 
 class QuestionQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     intent: QueryIntent
     subject: str = Field(min_length=1, max_length=100)
 
     @field_validator("subject", mode="before")
     @classmethod
     def strip_subject(cls, value: object) -> object:
+        return value.strip() if isinstance(value, str) else value
+
+
+class NaturalQuestion(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    question: str = Field(min_length=1, max_length=500)
+
+    @field_validator("question", mode="before")
+    @classmethod
+    def strip_question(cls, value: object) -> object:
         return value.strip() if isinstance(value, str) else value
 
 
@@ -89,6 +102,7 @@ class QuestionAnswer(BaseModel):
     subject: str
     found: bool
     answer: str = Field(min_length=1)
+    processing_method: Literal["structured", "rule", "ai"] = "structured"
     entities: list[EntityReference] = Field(default_factory=list)
     relations: list[RelationReference] = Field(default_factory=list)
     evidence: list[Evidence] = Field(default_factory=list)

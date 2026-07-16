@@ -18,3 +18,7 @@ class Settings(BaseSettings):
     neo4j_username: str = "neo4j"
     neo4j_password: SecretStr
     neo4j_database: str = "neo4j"
+    ai_enabled: bool = False
+    ai_base_url: str = ""
+    ai_api_key: SecretStr = SecretStr("")
+    ai_model: str = ""

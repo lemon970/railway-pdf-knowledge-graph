@@ -54,6 +54,17 @@ def test_real_question_endpoint_returns_sample_answer(client: TestClient) -> Non
     assert response.json()["evidence"][0]["pdf_page"] == 6
 
 
+def test_real_natural_question_uses_rule_fallback(client: TestClient) -> None:
+    response = client.post(
+        "/api/natural-questions",
+        json={"question": "车轮直径小于Φ800mm怎么处理？"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["processing_method"] == "rule"
+    assert response.json()["entities"][1]["entity_id"] == "A001"
+
+
 def test_real_graph_endpoint_returns_sample_neighborhood(client: TestClient) -> None:
     response = client.get("/api/graph/C002")
 

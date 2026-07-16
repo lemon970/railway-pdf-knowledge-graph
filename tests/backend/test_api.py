@@ -121,6 +121,36 @@ def test_question_endpoint_returns_not_found_without_inventing_answer() -> None:
     assert response.json()["evidence"] == []
 
 
+def test_natural_question_endpoint_uses_rule_fallback() -> None:
+    repository = FakeRepository(query_rows=[question_row()])
+    with TestClient(create_app(repository)) as client:
+        response = client.post(
+            "/api/natural-questions",
+            json={"question": "车轮直径小于Φ800mm怎么处理？"},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["processing_method"] == "rule"
+    assert response.json()["found"] is True
+    assert response.json()["entities"][1]["entity_id"] == "A001"
+
+
+def test_natural_question_endpoint_rejects_unknown_intent() -> None:
+    with TestClient(create_app(FakeRepository())) as client:
+        response = client.post(
+            "/api/natural-questions",
+            json={"question": "今天的天气怎么样？"},
+        )
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "error": {
+            "code": "UNKNOWN_INTENT",
+            "message": "暂不支持这类问题",
+        }
+    }
+
+
 def test_graph_endpoint_returns_nodes_and_edges() -> None:
     repository = FakeRepository(graph_rows=[graph_row()])
     with TestClient(create_app(repository)) as client:
