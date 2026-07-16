@@ -24,10 +24,13 @@ EXPECTED_RELATION_TYPE = {
 REQUIRED_RETURN_ALIASES = {
     "subject_id",
     "subject_name",
+    "subject_type",
     "answer_id",
     "answer_name",
     "answer_type",
     "relation_type",
+    "relation_source_id",
+    "relation_target_id",
     "pdf_page",
     "printed_page",
     "source_text",

@@ -15,10 +15,13 @@ _COMMON_RETURN = """
 RETURN DISTINCT
     subject.entity_id AS subject_id,
     subject.name AS subject_name,
+    subject.entity_type AS subject_type,
     answer.entity_id AS answer_id,
     answer.name AS answer_name,
     answer.entity_type AS answer_type,
     type(relation) AS relation_type,
+    startNode(relation).entity_id AS relation_source_id,
+    endNode(relation).entity_id AS relation_target_id,
     relation.pdf_page AS pdf_page,
     relation.printed_page AS printed_page,
     relation.source_text AS source_text
