@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { CircleAlert, CircleCheck, LoaderCircle, RefreshCw } from 'lucide-react'
 import { z } from 'zod'
 
@@ -8,8 +8,10 @@ const healthSchema = z.object({
 })
 
 type ConnectionState = 'checking' | 'connected' | 'unavailable'
+const healthCheckTimeout = Symbol('health-check-timeout')
+const healthCheckTimeoutMs = 5_000
 
-async function readConnection(signal?: AbortSignal): Promise<ConnectionState | null> {
+async function readConnection(signal: AbortSignal): Promise<ConnectionState> {
   try {
     const response = await fetch('/health', {
       headers: { Accept: 'application/json' },
@@ -26,7 +28,7 @@ async function readConnection(signal?: AbortSignal): Promise<ConnectionState | n
       : 'unavailable'
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      return null
+      throw error
     }
     return 'unavailable'
   }
@@ -34,23 +36,53 @@ async function readConnection(signal?: AbortSignal): Promise<ConnectionState | n
 
 export function SystemStatus() {
   const [connection, setConnection] = useState<ConnectionState>('checking')
+  const activeControllerRef = useRef<AbortController | null>(null)
 
-  useEffect(() => {
+  const runHealthCheck = useCallback(async () => {
+    activeControllerRef.current?.abort()
+
     const controller = new AbortController()
-    void readConnection(controller.signal).then((result) => {
-      if (result) {
-        setConnection(result)
-      }
+    activeControllerRef.current = controller
+    let timeoutId: number | undefined
+
+    const timeout = new Promise<never>((_resolve, reject) => {
+      timeoutId = window.setTimeout(() => {
+        reject(healthCheckTimeout)
+        controller.abort()
+      }, healthCheckTimeoutMs)
     })
-    return () => controller.abort()
+
+    let result: ConnectionState
+    try {
+      result = await Promise.race([readConnection(controller.signal), timeout])
+    } catch (error) {
+      if (error !== healthCheckTimeout && controller.signal.aborted) {
+        return
+      }
+      result = 'unavailable'
+    } finally {
+      window.clearTimeout(timeoutId)
+    }
+
+    if (activeControllerRef.current !== controller) {
+      return
+    }
+
+    activeControllerRef.current = null
+    setConnection(result)
   }, [])
 
-  const handleRetry = async () => {
-    setConnection('checking')
-    const result = await readConnection()
-    if (result) {
-      setConnection(result)
+  useEffect(() => {
+    void runHealthCheck()
+    return () => {
+      activeControllerRef.current?.abort()
+      activeControllerRef.current = null
     }
+  }, [runHealthCheck])
+
+  const handleRetry = () => {
+    setConnection('checking')
+    void runHealthCheck()
   }
 
   const isChecking = connection === 'checking'
@@ -81,7 +113,7 @@ export function SystemStatus() {
         </div>
       </div>
 
-      <button type="button" onClick={() => void handleRetry()} disabled={isChecking}>
+      <button type="button" onClick={handleRetry} disabled={isChecking}>
         <RefreshCw size={16} aria-hidden="true" />
         {isChecking ? '检测中' : '重新检测'}
       </button>

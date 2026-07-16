@@ -1,11 +1,15 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SystemStatus } from './SystemStatus'
 
 describe('SystemStatus', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn())
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('初次检测时显示中文加载状态', () => {
@@ -69,5 +73,27 @@ describe('SystemStatus', () => {
 
     expect(await screen.findByText('数据库已连接')).toBeInTheDocument()
     expect(fetch).toHaveBeenCalledTimes(2)
+  })
+
+  it('健康检查超过五秒时取消请求并显示不可用状态', async () => {
+    vi.useFakeTimers()
+    let requestSignal: AbortSignal | undefined
+    vi.mocked(fetch).mockImplementation((_input, init) => {
+      requestSignal = init?.signal ?? undefined
+      return new Promise((_resolve, reject) => {
+        requestSignal?.addEventListener('abort', () => {
+          reject(new DOMException('request aborted', 'AbortError'))
+        })
+      })
+    })
+
+    render(<SystemStatus />)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000)
+    })
+
+    expect(requestSignal?.aborted).toBe(true)
+    expect(screen.getByText('数据库暂不可用')).toBeInTheDocument()
   })
 })
