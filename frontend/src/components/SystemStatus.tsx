@@ -34,7 +34,11 @@ async function readConnection(signal: AbortSignal): Promise<ConnectionState> {
   }
 }
 
-export function SystemStatus() {
+interface SystemStatusProps {
+  onConnectionChange?: (connection: ConnectionState) => void
+}
+
+export function SystemStatus({ onConnectionChange }: SystemStatusProps) {
   const [connection, setConnection] = useState<ConnectionState>('checking')
   const activeControllerRef = useRef<AbortController | null>(null)
 
@@ -79,6 +83,10 @@ export function SystemStatus() {
       activeControllerRef.current = null
     }
   }, [runHealthCheck])
+
+  useEffect(() => {
+    onConnectionChange?.(connection)
+  }, [connection, onConnectionChange])
 
   const handleRetry = () => {
     setConnection('checking')

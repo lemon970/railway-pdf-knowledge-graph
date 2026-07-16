@@ -35,6 +35,7 @@ describe('SystemStatus', () => {
   })
 
   it('数据库离线时显示不可用状态', async () => {
+    const onConnectionChange = vi.fn()
     vi.mocked(fetch).mockResolvedValue(
       new Response(JSON.stringify({ status: 'degraded', database: 'unavailable' }), {
         status: 200,
@@ -42,9 +43,10 @@ describe('SystemStatus', () => {
       }),
     )
 
-    render(<SystemStatus />)
+    render(<SystemStatus onConnectionChange={onConnectionChange} />)
 
     expect(await screen.findByText('数据库暂不可用')).toBeInTheDocument()
+    expect(onConnectionChange).toHaveBeenLastCalledWith('unavailable')
   })
 
   it('HTTP 错误时显示不可用状态', async () => {
