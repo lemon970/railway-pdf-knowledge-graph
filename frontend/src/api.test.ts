@@ -141,6 +141,30 @@ describe('graphResponseSchema', () => {
   ])('拒绝额外字段、非法页码或未知枚举', (payload) => {
     expect(graphResponseSchema.safeParse(payload).success).toBe(false)
   })
+
+  it.each([
+    ['中心实体不存在', { ...validGraph, center_id: 'D999' }],
+    ['边端点悬空', {
+      ...validGraph,
+      edges: [{ ...validGraph.edges[0], target_id: 'A999' }],
+    }],
+    ['节点 ID 重复', {
+      ...validGraph,
+      nodes: [...validGraph.nodes, { ...validGraph.nodes[1], name: '重复节点' }],
+    }],
+    ['关系 ID 重复', {
+      ...validGraph,
+      edges: [...validGraph.edges, {
+        ...validGraph.edges[0], source_id: 'A001', target_id: 'D001',
+      }],
+    }],
+    ['节点与关系 ID 冲突', {
+      ...validGraph,
+      edges: [{ ...validGraph.edges[0], relation_id: 'D001' }],
+    }],
+  ])('拒绝%s', (_caseName, payload) => {
+    expect(graphResponseSchema.safeParse(payload).success).toBe(false)
+  })
 })
 
 describe('getGraphNeighborhood', () => {

@@ -56,6 +56,55 @@ export const graphResponseSchema = z.strictObject({
   center_id: z.string().min(1),
   nodes: z.array(graphNodeSchema),
   edges: z.array(graphEdgeSchema),
+}).superRefine((graph, context) => {
+  const nodeIds = new Set<string>()
+  graph.nodes.forEach((node, index) => {
+    if (nodeIds.has(node.entity_id)) {
+      context.addIssue({
+        code: 'custom',
+        message: 'duplicate node id',
+        path: ['nodes', index, 'entity_id'],
+      })
+    }
+    nodeIds.add(node.entity_id)
+  })
+
+  if (!nodeIds.has(graph.center_id)) {
+    context.addIssue({ code: 'custom', message: 'missing center node', path: ['center_id'] })
+  }
+
+  const relationIds = new Set<string>()
+  graph.edges.forEach((edge, index) => {
+    if (relationIds.has(edge.relation_id)) {
+      context.addIssue({
+        code: 'custom',
+        message: 'duplicate edge id',
+        path: ['edges', index, 'relation_id'],
+      })
+    }
+    relationIds.add(edge.relation_id)
+    if (nodeIds.has(edge.relation_id)) {
+      context.addIssue({
+        code: 'custom',
+        message: 'element id collision',
+        path: ['edges', index, 'relation_id'],
+      })
+    }
+    if (!nodeIds.has(edge.source_id)) {
+      context.addIssue({
+        code: 'custom',
+        message: 'missing edge source',
+        path: ['edges', index, 'source_id'],
+      })
+    }
+    if (!nodeIds.has(edge.target_id)) {
+      context.addIssue({
+        code: 'custom',
+        message: 'missing edge target',
+        path: ['edges', index, 'target_id'],
+      })
+    }
+  })
 })
 
 export const questionAnswerSchema = z.strictObject({

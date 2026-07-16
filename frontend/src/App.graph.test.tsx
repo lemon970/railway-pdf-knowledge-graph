@@ -39,7 +39,14 @@ async function submit() {
 
 it('found=true 且有 focus_entity_id 时请求并展示图谱', async () => {
   vi.mocked(fetch).mockImplementation((input) => String(input).startsWith('/api/graph/')
-    ? jsonResponse({ center_id: 'D/001', nodes: [], edges: [] })
+    ? jsonResponse({
+      center_id: 'D/001',
+      nodes: [{
+        entity_id: 'D/001', name: '踏面擦伤', entity_type: 'Defect', description: '踏面缺陷',
+        pdf_page: 8, printed_page: 31, source_text: '踏面擦伤需旋修。',
+      }],
+      edges: [],
+    })
     : jsonResponse(foundAnswer))
 
   await submit()
