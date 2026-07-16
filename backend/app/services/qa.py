@@ -82,6 +82,7 @@ class QAService:
             subject=query.subject,
             found=True,
             answer=answer_text,
+            focus_entity_id=str(rows[0]["subject_id"]),
             entities=list(entities.values()),
             relations=list(relations.values()),
             evidence=list(evidence.values()),

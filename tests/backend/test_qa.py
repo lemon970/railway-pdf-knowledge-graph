@@ -1,4 +1,13 @@
-from backend.app.models import QuestionQuery, QueryIntent
+import pytest
+from pydantic import ValidationError
+
+from backend.app.models import (
+    EntityReference,
+    Evidence,
+    QuestionAnswer,
+    QuestionQuery,
+    QueryIntent,
+)
 from backend.app.services.qa import QAService
 
 
@@ -42,6 +51,7 @@ def test_answer_builds_entities_relation_and_evidence_from_query_rows() -> None:
     answer = service.answer(query)
 
     assert answer.found is True
+    assert answer.focus_entity_id == "D001"
     assert answer.answer == "车轮直径小于Φ800mm需要的处理措施：整体更换车轮（含轮盘）"
     assert [entity.entity_id for entity in answer.entities] == ["D001", "A001"]
     assert answer.relations[0].model_dump() == {
@@ -107,3 +117,40 @@ def test_answer_returns_not_found_contract_for_empty_result() -> None:
     answer = QAService(repository).answer(query)
 
     assert answer == answer.not_found(query)
+    assert answer.focus_entity_id is None
+
+
+def test_found_answer_rejects_focus_outside_entities() -> None:
+    with pytest.raises(ValidationError):
+        QuestionAnswer(
+            intent=QueryIntent.DEFECT_ACTION,
+            subject="车轮",
+            found=True,
+            answer="车轮需要的处理措施：整体更换车轮",
+            focus_entity_id="D999",
+            entities=[
+                EntityReference(
+                    entity_id="D001",
+                    name="车轮直径小于Φ800mm",
+                    entity_type="Defect",
+                )
+            ],
+            evidence=[
+                Evidence(
+                    pdf_page=6,
+                    printed_page=29,
+                    source_text="车轮直径小于Φ800mm时，车轮整体更换。",
+                )
+            ],
+        )
+
+
+def test_not_found_answer_rejects_focus_entity() -> None:
+    with pytest.raises(ValidationError):
+        QuestionAnswer(
+            intent=QueryIntent.PROCEDURE_STEPS,
+            subject="不存在的工序",
+            found=False,
+            answer="未找到证据",
+            focus_entity_id="P001",
+        )

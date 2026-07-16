@@ -103,6 +103,7 @@ class QuestionAnswer(BaseModel):
     found: bool
     answer: str = Field(min_length=1)
     processing_method: Literal["structured", "rule", "ai"] = "structured"
+    focus_entity_id: str | None = None
     entities: list[EntityReference] = Field(default_factory=list)
     relations: list[RelationReference] = Field(default_factory=list)
     evidence: list[Evidence] = Field(default_factory=list)
@@ -111,8 +112,15 @@ class QuestionAnswer(BaseModel):
     def require_evidence_for_found_answer(self) -> QuestionAnswer:
         if self.found and not self.evidence:
             raise ValueError("A found answer must include source evidence")
+        if self.found and self.focus_entity_id is None and self.entities:
+            self.focus_entity_id = self.entities[0].entity_id
+        entity_ids = {entity.entity_id for entity in self.entities}
+        if self.found and self.focus_entity_id not in entity_ids:
+            raise ValueError("A found answer must focus on a returned entity")
         if not self.found and self.answer != "未找到证据":
             raise ValueError("An answer without evidence must use the not-found message")
+        if not self.found and self.focus_entity_id is not None:
+            raise ValueError("A not-found answer cannot include a focus entity")
         if not self.found and (self.entities or self.relations or self.evidence):
             raise ValueError("A not-found answer cannot include result payload")
         return self

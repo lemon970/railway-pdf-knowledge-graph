@@ -105,6 +105,7 @@ def test_question_endpoint_returns_answer_and_evidence() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["found"] is True
+    assert body["focus_entity_id"] == "D001"
     assert body["entities"][1]["entity_id"] == "A001"
     assert body["evidence"][0]["pdf_page"] == 6
 
@@ -118,6 +119,7 @@ def test_question_endpoint_returns_not_found_without_inventing_answer() -> None:
 
     assert response.status_code == 200
     assert response.json()["answer"] == "未找到证据"
+    assert response.json()["focus_entity_id"] is None
     assert response.json()["evidence"] == []
 
 
@@ -132,6 +134,7 @@ def test_natural_question_endpoint_uses_rule_fallback() -> None:
     assert response.status_code == 200
     assert response.json()["processing_method"] == "rule"
     assert response.json()["found"] is True
+    assert response.json()["focus_entity_id"] == "D001"
     assert response.json()["entities"][1]["entity_id"] == "A001"
 
 
