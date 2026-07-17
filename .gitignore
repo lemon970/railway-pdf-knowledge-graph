@@ -65,6 +65,7 @@ neo4j/import/
 logs/
 tmp/
 temp/
+.tmp-*/
 *.pid
 
 # Editors and operating systems
