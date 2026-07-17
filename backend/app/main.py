@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path as FileSystemPath
 from typing import Annotated, Protocol
 
 from fastapi import FastAPI, Path, Request, Response, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from neo4j.exceptions import Neo4jError, ServiceUnavailable
 
 from backend.app.database import Neo4jRepository
@@ -22,6 +24,11 @@ from backend.app.services.ai_client import AIIntentClient
 from backend.app.services.intent import IntentService, UnknownIntentError
 from backend.app.services.qa import QAService
 from backend.app.settings import Settings
+
+
+DEFAULT_FRONTEND_DIST = (
+    FileSystemPath(__file__).resolve().parents[2] / "frontend" / "dist"
+)
 
 
 class AppRepository(Protocol):
@@ -44,6 +51,7 @@ class AppError(Exception):
 def create_app(
     repository: AppRepository | None = None,
     intent_service: IntentService | None = None,
+    frontend_dist: FileSystemPath | None = None,
 ) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -76,6 +84,28 @@ def create_app(
         version="0.1.0",
         lifespan=lifespan,
     )
+    dist_dir = frontend_dist if frontend_dist is not None else DEFAULT_FRONTEND_DIST
+    index_file = dist_dir / "index.html"
+    assets_dir = dist_dir / "assets"
+
+    if assets_dir.is_dir():
+        application.mount(
+            "/assets",
+            StaticFiles(directory=assets_dir),
+            name="frontend-assets",
+        )
+
+    @application.get("/", response_model=None)
+    def frontend_index() -> Response:
+        if index_file.is_file():
+            return FileResponse(index_file, media_type="text/html")
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={
+                "status": "frontend_unavailable",
+                "message": "前端尚未构建",
+            },
+        )
 
     @application.exception_handler(AppError)
     async def handle_app_error(_request: Request, error: AppError) -> JSONResponse:
