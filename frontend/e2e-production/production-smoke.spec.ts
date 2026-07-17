@@ -110,6 +110,7 @@ test('FastAPI 单服务提供中文页面、静态资源和 API 文档', async (
   expect(indexResponse?.status()).toBe(200)
   expect(indexResponse?.headers()['content-type']).toContain('text/html')
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN')
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', 'data:,')
   await expect(page.getByRole('heading', { name: '铁路 PDF 知识图谱' })).toBeVisible()
   await expect(page.getByText('数据库已连接')).toBeVisible()
 
