@@ -4,7 +4,7 @@
 
 本计划落实已确认的 React/Vite + FastAPI 单服务方案，覆盖个人总计划 Task 11 和 Task 12。实施按后端契约、前端基础、问答闭环、图谱闭环、静态托管和浏览器验收依次推进；每个行为变更先写失败测试，再做最小实现，完成一项即验证并提交。Task 13 的评测集依赖成员 E，不在本计划中提前处理。
 
-截至 2026-07-17，Task 11.0 至 Task 12.4 已完成并通过各自的自动化测试、规格复核与质量复核。界面默认语言固定为简体中文；Vite 双服务浏览器验收与 FastAPI 单服务演示验收均已通过。Neo4j 恢复后已完成真实浏览器 smoke：`component_association` 可返回答案、证据和图谱；`defect_action`、`limit_standard`、`procedure_steps` 三类示例仍返回“未找到证据”。因此 Checkpoint D2 的四类真实证据验收尚未通过，不能用 fixture 验收替代。
+截至 2026-07-17，Task 11.0 至 Task 12.4 已完成并通过各自的自动化测试、规格复核与质量复核。界面默认语言固定为简体中文；Vite 双服务浏览器验收与 FastAPI 单服务演示验收均已通过。正式 reviewed CSV 同步到 Neo4j 后，`component_association`、`defect_action` 和 `limit_standard` 三类可返回真实答案、证据和图谱；`procedure_steps` 的“更换闸瓦”示例仍缺少 reviewed 工序实体及 `NEXT_STEP` 关系。因此 Checkpoint D2 的四类真实证据验收尚未通过，不能用 fixture 验收替代。
 
 ## 架构决定
 
