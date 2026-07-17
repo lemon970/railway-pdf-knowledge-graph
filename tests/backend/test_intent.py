@@ -31,8 +31,10 @@ class FakeAIClient:
     [
         ("轮对由哪些部件组成？", QueryIntent.COMPONENT_ASSOCIATION, "轮对"),
         ("车轮直径小于Φ800mm怎么处理？", QueryIntent.DEFECT_ACTION, "车轮直径小于Φ800mm"),
+        ("车轮直径小于Φ800mm时如何处理？", QueryIntent.DEFECT_ACTION, "车轮直径小于Φ800mm"),
         ("车轮的限度标准是多少？", QueryIntent.LIMIT_STANDARD, "车轮"),
         ("车轴探伤的下一步是什么？", QueryIntent.PROCEDURE_STEPS, "车轴探伤"),
+        ("更换闸瓦需要经过哪些工序？", QueryIntent.PROCEDURE_STEPS, "更换闸瓦"),
     ],
 )
 def test_rule_parser_maps_supported_questions(

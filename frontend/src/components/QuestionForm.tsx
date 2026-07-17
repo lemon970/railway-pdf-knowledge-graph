@@ -4,7 +4,7 @@ import { Search } from 'lucide-react'
 const exampleQuestions = [
   '轮对由哪些部件组成？',
   '车轮直径小于Φ800mm时如何处理？',
-  '车轮轮缘厚度的限度标准是什么？',
+  '车轮（含轮盘）的限度标准是什么？',
   '更换闸瓦需要经过哪些工序？',
 ]
 const maximumQuestionLength = 500
