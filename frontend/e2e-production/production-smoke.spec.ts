@@ -129,7 +129,16 @@ test('FastAPI 单服务提供中文页面、静态资源和 API 文档', async (
   expect(assetResponses.every(({ status }) => status === 200)).toBe(true)
   expect(loadedResources.every(({ url }) => new URL(url).origin === LOCAL_ORIGIN)).toBe(true)
 
+  await page.unroute('**/api/natural-questions')
+  await page.unroute('**/api/graph/*')
+  expect(browserErrors).toEqual([])
   await page.context().setOffline(true)
+  const offlineApiRequests: string[] = []
+  page.on('request', (browserRequest) => {
+    const url = new URL(browserRequest.url())
+    if (url.pathname.startsWith('/api/')) offlineApiRequests.push(url.pathname)
+  })
+
   const defectButton = page.getByRole('button', { name: /踏面剥离.*缺陷/ })
   await defectButton.click()
   await expect(defectButton).toHaveAttribute('aria-pressed', 'true')
@@ -137,5 +146,6 @@ test('FastAPI 单服务提供中文页面、静态资源和 API 文档', async (
   await page.getByRole('button', { name: '重置选择' }).click()
   await expect(defectButton).toHaveAttribute('aria-pressed', 'false')
   await expect(page.getByRole('heading', { name: '铁路 PDF 知识图谱' })).toBeVisible()
+  expect(offlineApiRequests).toEqual([])
   expect(browserErrors).toEqual([])
 })

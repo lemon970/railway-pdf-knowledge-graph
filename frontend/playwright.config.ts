@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { shouldReusePlaywrightServer } from './playwrightServerReuse'
 
 export default defineConfig({
   testDir: './e2e',
@@ -15,6 +16,6 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev -- --host 127.0.0.1 --port 4173',
     url: 'http://127.0.0.1:4173',
-    reuseExistingServer: true,
+    reuseExistingServer: shouldReusePlaywrightServer(process.env.PW_REUSE_SERVER),
   },
 })
