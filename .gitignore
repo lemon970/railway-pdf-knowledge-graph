@@ -50,6 +50,7 @@ build/
 .nuxt/
 coverage/
 *.tsbuildinfo
+output/playwright/
 
 # Neo4j and local databases
 neo4j/data/
