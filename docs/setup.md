@@ -21,6 +21,8 @@ Neo4j 启动、`.env` 配置和前端依赖安装完成后，在仓库根目录�
 .\scripts\start-local.ps1
 ```
 
+不想输入命令时，直接双击仓库根目录的 `start-local.cmd`，效果相同，并会显示后端、前端服务窗口。
+
 脚本会检查 Neo4j，启动 FastAPI 后端和 React/Vite 开发页面，并打开 `http://127.0.0.1:5173`。已有可用服务会被复用，不会重复启动。只检查不启动新窗口：
 
 ```powershell

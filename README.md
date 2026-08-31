@@ -62,3 +62,5 @@ powershell -ExecutionPolicy Bypass -File scripts/check-repository.ps1
 - 前端使用 React + TypeScript，默认中文，提供自然语言问答、证据查看和图谱邻域展示。
 - 当前正式数据为 65 个实体、55 条关系；成员 C 的 48 个实体、47 条关系保留在提交目录中并标记为 `draft`。
 - 本地启动、导入、评测和故障处理步骤见 [环境搭建](docs/setup.md)、[演示脚本](docs/demo-script.md) 和 [故障排查](docs/troubleshooting.md)。
+
+双击仓库根目录的 `start-local.cmd` 可以快速启动后端和图形界面；命令行参数和检查模式见 [环境搭建](docs/setup.md)。

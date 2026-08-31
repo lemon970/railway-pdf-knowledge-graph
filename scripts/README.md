@@ -9,6 +9,8 @@
 
 快速启动脚本不负责启动 Neo4j；请先在 Neo4j Desktop 中启动本地数据库。
 
+也可以直接双击仓库根目录的 `start-local.cmd`。它会调用下面的 PowerShell 脚本并显示后端、前端服务窗口。
+
 ```powershell
 .\scripts\start-local.ps1
 ```
