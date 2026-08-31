@@ -12,10 +12,10 @@ if not exist "%SCRIPT%" (
 
 where pwsh.exe >nul 2>&1
 if %errorlevel% equ 0 (
-    pwsh.exe -NoLogo -NoProfile -File "%SCRIPT%" -ShowWindows
+    pwsh.exe -NoLogo -NoProfile -File "%SCRIPT%" -ShowWindows %*
     set "EXIT_CODE=%errorlevel%"
 ) else (
-    powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%" -ShowWindows
+    powershell.exe -NoLogo -NoProfile -File "%SCRIPT%" -ShowWindows %*
     set "EXIT_CODE=%errorlevel%"
 )
 
