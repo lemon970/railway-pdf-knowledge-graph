@@ -13,6 +13,30 @@
 
 当前仓库中的正式导入表是 `data/import/entities.csv` 和 `data/import/relations.csv`，目前包含 65 个实体和 55 条关系，全部为 `reviewed`。其中成员 D 的首批数据经组长复核后纳入正式表，共 60 个实体和 50 条关系；成员 C 的 48 个实体和 47 条关系已完成结构与证据修复，但因与正式样例存在同名概念而暂保留在提交目录并标记为 `draft`，未导入正式表。未完成复核或会造成查询歧义的数据不能直接作为正式数据使用。评测题库目前有 16 道 `reviewed` 题目，四类意图各 4 道。
 
+## 快速启动和检查
+
+Neo4j 启动、`.env` 配置和前端依赖安装完成后，在仓库根目录执行：
+
+```powershell
+.\scripts\start-local.ps1
+```
+
+脚本会检查 Neo4j，启动 FastAPI 后端和 React/Vite 开发页面，并打开 `http://127.0.0.1:5173`。已有可用服务会被复用，不会重复启动。只检查不启动新窗口：
+
+```powershell
+.\scripts\start-local.ps1 -CheckOnly
+```
+
+默认服务进程在后台窗口运行；需要查看日志并手动按 `Ctrl+C` 停止时使用 `-ShowWindows`。
+
+生产模式会先构建 `frontend/dist`，再打开由 FastAPI 托管的页面：
+
+```powershell
+.\scripts\start-local.ps1 -Production
+```
+
+脚本不会自动启动 Neo4j；使用 `-ShowWindows` 时可在后端、前端窗口按 `Ctrl+C` 停止服务。
+
 ## 获取代码
 
 ```powershell

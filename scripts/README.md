@@ -5,8 +5,31 @@
 - `import/`：Neo4j导入；
 - `evaluation/`：问题评测；
 - `check-repository.ps1`：检查仓库关键结构。
+- `start-local.ps1`：快速检查并启动 Neo4j 依赖下的 FastAPI 和 React 页面。
 
-具体工具确定后再添加依赖和运行脚本。
+快速启动脚本不负责启动 Neo4j；请先在 Neo4j Desktop 中启动本地数据库。
+
+```powershell
+.\scripts\start-local.ps1
+```
+
+默认将服务窗口隐藏；需要查看日志并手动按 `Ctrl+C` 停止时，加上 `-ShowWindows`。
+
+```powershell
+.\scripts\start-local.ps1 -ShowWindows
+```
+
+只检查当前环境和已运行服务：
+
+```powershell
+.\scripts\start-local.ps1 -CheckOnly
+```
+
+构建生产前端并由 FastAPI 托管：
+
+```powershell
+.\scripts\start-local.ps1 -Production
+```
 
 ## 数据校验
 
