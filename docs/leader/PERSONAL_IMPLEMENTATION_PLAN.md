@@ -426,7 +426,7 @@ Task 1 至 Task 4 必须顺序执行。Task 5 的 OCR 规范完成后，成员�
 
 **依赖：** Task 10、Task 12；依赖 E 的问题初稿。
 
-**预计涉及：** `data/evaluation/questions.csv`、`scripts/evaluation/run_evaluation.py`、`reports/evaluation/`。
+**预计涉及：** `data/evaluation/questions.csv`、`scripts/evaluation/run_evaluation.py`、`output/evaluation/`（本地生成，已加入 `.gitignore`）。
 
 **规模：** M，约 3 至 4 小时。
 

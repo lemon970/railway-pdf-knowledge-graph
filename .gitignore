@@ -51,6 +51,7 @@ build/
 coverage/
 *.tsbuildinfo
 output/playwright/
+output/evaluation/
 .playwright-cli/
 
 # Neo4j and local databases

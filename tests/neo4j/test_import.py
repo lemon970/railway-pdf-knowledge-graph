@@ -1,3 +1,4 @@
+import csv
 import os
 import subprocess
 import sys
@@ -47,6 +48,16 @@ def graph_counts(driver) -> tuple[int, int]:
         return record["nodes"], record["relationships"]
 
 
+def import_file_counts() -> tuple[int, int]:
+    def count_rows(filename: str) -> int:
+        with (ROOT / "data" / "import" / filename).open(
+            encoding="utf-8-sig", newline=""
+        ) as handle:
+            return sum(1 for row in csv.DictReader(handle) if any(row.values()))
+
+    return count_rows("entities.csv"), count_rows("relations.csv")
+
+
 def test_clear_import_and_reimport_are_repeatable(driver) -> None:
     clear_result = run_import_command("--clear")
     assert clear_result.returncode == 0, clear_result.stdout + clear_result.stderr
@@ -54,11 +65,11 @@ def test_clear_import_and_reimport_are_repeatable(driver) -> None:
 
     first_import = run_import_command()
     assert first_import.returncode == 0, first_import.stdout + first_import.stderr
-    assert graph_counts(driver) == (5, 5)
+    assert graph_counts(driver) == import_file_counts()
 
     second_import = run_import_command()
     assert second_import.returncode == 0, second_import.stdout + second_import.stderr
-    assert graph_counts(driver) == (5, 5)
+    assert graph_counts(driver) == import_file_counts()
 
     with driver.session(database=os.getenv("NEO4J_DATABASE", "neo4j")) as session:
         record = session.run(

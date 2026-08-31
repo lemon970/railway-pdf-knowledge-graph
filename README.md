@@ -29,8 +29,8 @@
 docs/       项目范围、Schema、分工、AI规则和会议记录
 data/       OCR、人工复核、Neo4j导入表和评测题
 scripts/    OCR、抽取、导入、评测和仓库检查脚本
-backend/    问答后端（技术选型后建立）
-frontend/   查询与图谱展示（技术选型后建立）
+backend/    FastAPI 问答后端与 Neo4j 查询
+frontend/   React + TypeScript 查询与图谱展示
 tests/      跨模块测试资料
 reports/    周报、结题报告和答辩材料
 .github/    Issue和Pull Request模板
@@ -58,5 +58,7 @@ powershell -ExecutionPolicy Bypass -File scripts/check-repository.ps1
 
 ## 当前技术状态
 
-仓库目前只固定协作规范和数据接口。OCR 引擎、后端框架、前端框架及大模型接口将在首次 Neo4j 数据闭环后确定。
-
+- 后端使用 FastAPI，通过 Neo4j Bolt 查询正式导入表。
+- 前端使用 React + TypeScript，默认中文，提供自然语言问答、证据查看和图谱邻域展示。
+- 当前正式数据为 65 个实体、55 条关系；成员 C 的 48 个实体、47 条关系保留在提交目录中并标记为 `draft`。
+- 本地启动、导入、评测和故障处理步骤见 [环境搭建](docs/setup.md)、[演示脚本](docs/demo-script.md) 和 [故障排查](docs/troubleshooting.md)。
