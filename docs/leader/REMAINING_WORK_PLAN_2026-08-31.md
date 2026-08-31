@@ -23,7 +23,7 @@
 4. [x] 清空并重建本地 Neo4j，执行正式导入，完成四类问答和图谱邻域检查。
 5. [x] 完成 Python 全量测试、前端 lint、类型检查、构建、单元测试、E2E 和生产模式 E2E。
 6. [x] 检查文档、`.gitignore`、禁止跟踪文件、差异空白和工作树状态。
-7. 提交 `feature/leader-implementation`，推送该分支；确认验证通过后合并到 `main` 并推送，再做一次健康检查和评测。
+7. [x] 已提交并推送 `feature/leader-implementation`；已快进合并并推送 `main`，健康检查和 16 道真实评测均通过。
 
 ## 验收门槛
 
